@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "Tämä on otsikko2",
+    "author": "Kirjoittaja King K0ng",
+    "url": "ja/urlizzz/tässä.com",
+    "likes": 200
+}
