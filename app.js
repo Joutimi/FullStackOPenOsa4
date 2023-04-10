@@ -13,12 +13,12 @@ logger.infolog('connecting to', config.MONGODBURL)
 
 // Yhdistäminen
 mongoose.connect(config.MONGODBURL)
-    .then(() => {
-        logger.infolog('Connected to MongoDB')
-    })
-    .catch((error) => {
-        logger.errorlog('Error connecting to MongoDB', error.message)
-    })
+	.then(() => {
+		logger.infolog('Connected to MongoDB')
+	})
+	.catch((error) => {
+		logger.errorlog('Error connecting to MongoDB', error.message)
+	})
 
 app.use(cors())
 app.use(express.json())
