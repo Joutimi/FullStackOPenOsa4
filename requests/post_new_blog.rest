@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "Tämä on otsikko3",
-    "author": "Tolkien",
-    "url": "ja/urlizzz/täsfsdfassä.com",
-    "likes": 600
+    "title": "Otsikko1",
+    "author": "Kirjoittaja Kirjanen",
+    "url": "ja/urlizzz/tassa.com",
+    "likes": 5
 }

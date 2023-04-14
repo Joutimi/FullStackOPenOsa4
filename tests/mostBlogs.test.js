@@ -53,7 +53,6 @@ describe('mostBlogs', () => {
       }]
   
       const result = listHelper.mostBlogs(blogs)
-      console.log(result)
       expect(result).toEqual({author: 'Robert C. Martin', blogs: 3})
     })
 

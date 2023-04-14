@@ -53,7 +53,6 @@ describe('Total likes', () => {
     }]
 
     const result = listHelper.favoriteBlog(blogs)
-    console.log(result)
     expect(result).toEqual({
         _id: "5a422b3a1b54a676234d17f9",
         title: "Canonical string reduction",
@@ -94,7 +93,6 @@ describe('Total likes', () => {
     }]
 
     const result = listHelper.favoriteBlog(blogs)
-    console.log(result)
     expect(result).toEqual({
         _id: "5a422b3a1b54a676234d17f9",
         title: "Canonical string reduction",
@@ -108,7 +106,6 @@ describe('Total likes', () => {
   test('Empty list of blogs', () => {
     const blogs = []
     const result = listHelper.favoriteBlog(blogs)
-    console.log('empty list logi',result)
     expect(result).toBe(0)
   })
 })

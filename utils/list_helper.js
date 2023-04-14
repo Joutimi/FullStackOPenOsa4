@@ -6,15 +6,12 @@
 
   const totalLikes = (blogs) => {
     var likesAmount = blogs.reduce(function(sum, blog) {
-      console.log('logi:', sum, blog)
       return sum + blog.likes
     }, 0)
-    console.log('likesAmount: ', likesAmount)
     return likesAmount
   }
 
   const favoriteBlog = (blogs) => {
-    console.log('blogs lenght: ', blogs.length)
     if(blogs.length != 0) {
       const mostLikes = blogs.reduce(
         (prev, current) => {
