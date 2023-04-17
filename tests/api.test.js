@@ -137,6 +137,63 @@ describe('POST tests', () => {
     }) 
 })
 
+describe('DELETE tests', () => {
+    test('deleting works', async () => {
+        const blogsAtBeginning = blogsForTesting
+        const blogToBeDeleted = blogsAtBeginning[0]
+
+        await api
+            .delete(`/api/blogs/${blogToBeDeleted._id}`)
+            .expect(204)
+
+        const getBlogsAfterDeleting = async () => {
+            const blogs = await Blog.find({})
+            //console.log(blogs)
+            return blogs.map(blog => blog.toJSON())
+        }
+
+        const blogsAtEnd = await getBlogsAfterDeleting()
+        //console.log(blogsAtEnd)
+
+        expect(blogsAtEnd).toHaveLength(blogsAtBeginning.length-1)
+
+
+        const titles = blogsAtEnd.map(b => b.title)
+        //console.log(titles)
+
+        expect(titles).not.toContain(blogToBeDeleted.title)
+    })
+})
+
+describe('PUT tests', () => {
+    test('updating a blog works', async () => {
+
+        const blogToBeUpdated = {
+            id: "5a422a851b54a676234d17f7",
+            title: "React patterns",
+            author: "Michael Chan",
+            url: "https://reactpatterns.com/",
+            likes: 10
+        }
+
+        await api
+            .put(`/api/blogs/${blogToBeUpdated.id}`)
+            .send(blogToBeUpdated)
+            .expect('Content-Type', /application\/json/)
+
+        const getBlogsAfterUpdating = async () => {
+            const blogs = await Blog.find({})
+            //console.log(blogs)
+            return blogs.map(blog => blog.toJSON())
+        }
+
+        const blogsAfterUpdate = await getBlogsAfterUpdating()
+        //console.log(blogsAfterUpdate)
+        expect(blogsAfterUpdate[0].likes).toEqual(10)
+
+    })
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
-    })
+})

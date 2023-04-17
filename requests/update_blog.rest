@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/blogs/643d1f1272c92908b43378a9
+Content-Type: application/json
+
+{
+    "title": "Otsikko1",
+    "author": "Kirjoittaja Kirjanen",
+    "url": "ja/urlizzz/tassa.com",
+    "likes": 10
+}
