@@ -1,9 +1,10 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-
-{
-    "title": "Otsikko1",
-    "author": "Kirjoittaja Kirjanen",
-    "url": "ja/urlizzz/tassa.com",
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkvDpHl0dMOkasOkMSIsImlkIjoiNjQ0NjczMzZiMGY2NTFhZGQ5MzlmMjhhIiwiaWF0IjoxNjgyMzM4NjQ4LCJleHAiOjE2ODIzNDIyNDh9.qrzc8Tw2r0SwEGCV8Dd1dsHF34cFCtX0MKn8KdYeuAc
+    
+{    
+    "title": "Blogin otsikko",
+    "author": "Kokkare Kokkarsson",
+    "url": "www.youtube.com",
     "likes": 5
 }

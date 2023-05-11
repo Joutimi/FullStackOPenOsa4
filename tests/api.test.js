@@ -2,72 +2,23 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const tools = require('./testTools')
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 
 const api = supertest(app)
 
-// Blogilista tietokannan alustukseen
-const blogsForTesting = [
-    {
-        _id: "5a422a851b54a676234d17f7",
-        title: "React patterns",
-        author: "Michael Chan",
-        url: "https://reactpatterns.com/",
-        likes: 7,
-        __v: 0
-      },
-      {
-        _id: "5a422aa71b54a676234d17f8",
-        title: "Go To Statement Considered Harmful",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-        likes: 5,
-        __v: 0
-      },
-      {
-        _id: "5a422b3a1b54a676234d17f9",
-        title: "Canonical string reduction",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 12,
-        __v: 0
-      },
-      {
-        _id: "5a422b891b54a676234d17fa",
-        title: "First class tests",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-        likes: 10,
-        __v: 0
-      },
-      {
-        _id: "5a422ba71b54a676234d17fb",
-        title: "TDD harms architecture",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
-        likes: 0,
-        __v: 0
-      },
-      {
-        _id: "5a422bc61b54a676234d17fc",
-        title: "Type wars",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-        likes: 2,
-        __v: 0
-      },
-]
 
 //  Tietokannan alustus
 beforeEach(async () => {
     await Blog.deleteMany({})
-    await Blog.insertMany(blogsForTesting)
+    await Blog.insertMany(tools.blogsForTesting)
 })
 
 describe('GET tests', () => {
     test('returned amount is correct', async () => {
         const response = await api.get('/api/blogs')
-        const len = blogsForTesting.length
-        expect(response.body).toHaveLength(len)
+        expect(response.body).toHaveLength(tools.blogsForTesting.length)
     })
 
     test('returns blogs as json', async () => {
@@ -90,7 +41,8 @@ describe('POST tests', () => {
             'title': 'Otsikko1',
             'author': 'Kirjoittaja Kirjanen',
             'url': 'ja/urlizzz/tassa.com',
-            'likes': 5 
+            'likes': 5, 
+            'userId': '6440f5c84234f396ff5f9907'
         }
         
         await api
@@ -101,7 +53,7 @@ describe('POST tests', () => {
         
         const res = await api.get('/api/blogs')
         const resTitle = res.body.map(blg => blg.title)
-        expect(resTitle).toContain('Otsikko1')
+        expect(resTitle).toContain(newBlogi.title)
     })
 
     test('if likes is left empty, it will auto-set to 0', async () => {
@@ -109,7 +61,8 @@ describe('POST tests', () => {
             'title': 'Otsikko1',
             'author': 'Kirjoittaja Kirjanen',
             'url': 'ja/urlizzz/tassa.com',
-            'likes': null
+            'likes': null,
+            'userId': '6440f5c84234f396ff5f9907'
         }
 
         await api
@@ -126,7 +79,8 @@ describe('POST tests', () => {
     test('title and/or url dont exist', async () => {
         const newBlogi = {
             'author': 'Kirjoittaja Kirjanen',
-            'likes': 7
+            'likes': 7,
+            'userId': '6440f5c84234f396ff5f9907'
         }
 
         await api
@@ -139,20 +93,14 @@ describe('POST tests', () => {
 
 describe('DELETE tests', () => {
     test('deleting works', async () => {
-        const blogsAtBeginning = blogsForTesting
+        const blogsAtBeginning = tools.blogsForTesting
         const blogToBeDeleted = blogsAtBeginning[0]
 
         await api
             .delete(`/api/blogs/${blogToBeDeleted._id}`)
             .expect(204)
 
-        const getBlogsAfterDeleting = async () => {
-            const blogs = await Blog.find({})
-            //console.log(blogs)
-            return blogs.map(blog => blog.toJSON())
-        }
-
-        const blogsAtEnd = await getBlogsAfterDeleting()
+        const blogsAtEnd = await tools.getBlogsAfter()
         //console.log(blogsAtEnd)
 
         expect(blogsAtEnd).toHaveLength(blogsAtBeginning.length-1)
@@ -181,16 +129,93 @@ describe('PUT tests', () => {
             .send(blogToBeUpdated)
             .expect('Content-Type', /application\/json/)
 
-        const getBlogsAfterUpdating = async () => {
-            const blogs = await Blog.find({})
-            //console.log(blogs)
-            return blogs.map(blog => blog.toJSON())
-        }
-
-        const blogsAfterUpdate = await getBlogsAfterUpdating()
+        const blogsAfterUpdate = await tools.getBlogsAfter()
         //console.log(blogsAfterUpdate)
         expect(blogsAfterUpdate[0].likes).toEqual(10)
 
+    })
+})
+
+// User tests
+describe('user creation tests: when there is initially one user at db', () => {
+    beforeEach(async () => {
+      await User.deleteMany({})
+  
+      const passwordHash = await bcrypt.hash('sekret', 10)
+      const user = new User({ username: 'root', passwordHash })
+  
+      await user.save()
+    })
+  
+    test('creation succeeds with a fresh username', async () => {
+      const usersAtStart = await tools.getUsersAfter()
+  
+      const newUser = {
+        username: 'mluukkai',
+        name: 'Matti Luukkainen',
+        password: 'salainen',
+      }
+  
+      await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+  
+      const usersAtEnd = await tools.getUsersAfter()
+      expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+  
+      const usernames = usersAtEnd.map(u => u.username)
+      expect(usernames).toContain(newUser.username)
+    })
+
+    test('creation fails with proper statuscode and message if username already taken', async () => {
+        const usersAtStart = await tools.getUsersAfter()
+    
+        const newUser = {
+          username: 'root',
+          name: 'Superuser',
+          password: 'salainen',
+        }
+    
+        const result = await api
+          .post('/api/users')
+          .send(newUser)
+          .expect(400)
+          .expect('Content-Type', /application\/json/)
+    
+        expect(result.body.error).toContain('expected `username` to be unique')
+    
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toHaveLength(usersAtStart.length)
+    })
+})
+
+describe('user creation tests: username or password too short', () => {
+    test('username is too short', async () => {
+        const newUser = {
+            username: 'je',
+            name: 'Testiukkeli Makkonen',
+            password: 'tamaonsalasana',
+          }
+        
+        const result = await api
+          .post('/api/users')
+          .send(newUser)
+          .expect(400)
+    })
+
+    test('password is too short', async () => {
+        const newUser = {
+            username: 'jeepulis',
+            name: 'Testiukkeli Makkonen',
+            password: 'ok',
+          }
+        
+        const result = await api
+          .post('/api/users')
+          .send(newUser)
+          .expect(400)
     })
 })
 
